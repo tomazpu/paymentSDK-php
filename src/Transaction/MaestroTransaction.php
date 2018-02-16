@@ -32,11 +32,34 @@
 
 namespace Wirecard\PaymentSdk\Transaction;
 
+use Wirecard\PaymentSdk\Exception\MandatoryFieldMissingException;
+use Wirecard\PaymentSdk\Exception\UnsupportedOperationException;
+
 /**
  * Class CreditCardTransaction
  * @package Wirecard\PaymentSdk\Transaction
  */
 class MaestroTransaction extends CreditCardTransaction
 {
+    const NAME = 'maestro';
 
+    /**
+     * @throws MandatoryFieldMissingException|UnsupportedOperationException
+     * @return array
+     */
+    protected function mappedSpecificProperties()
+    {
+        $this->validate();
+        $result = ['payment-methods' => ['payment-method' => [[
+            'name' => CreditCardTransaction::NAME
+        ]]]];
+
+        if (null !== $this->tokenId) {
+            $result['card-token'] = [
+                'token-id' => $this->tokenId,
+            ];
+        }
+
+        return $result;
+    }
 }

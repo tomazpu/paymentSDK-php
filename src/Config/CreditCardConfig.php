@@ -57,7 +57,7 @@ class CreditCardConfig extends PaymentMethodConfig
     private $threeDSecret;
 
     /**
-     * SepaConfig constructor.
+     * Credit card constructor.
      * @param string $merchantAccountId
      * @param string $secret
      */

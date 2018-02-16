@@ -10,23 +10,25 @@ require __DIR__ . '/../../vendor/autoload.php';
 
 use Wirecard\PaymentSdk\Config;
 use Wirecard\PaymentSdk\Config\CreditCardConfig;
+use Wirecard\PaymentSdk\Config\MaestroConfig;
 use Wirecard\PaymentSdk\Config\PaymentMethodConfig;
 use Wirecard\PaymentSdk\Config\SepaConfig;
 use Wirecard\PaymentSdk\Entity\Amount;
+use Wirecard\PaymentSdk\Transaction\AlipayCrossborderTransaction;
 use Wirecard\PaymentSdk\Transaction\BancontactTransaction;
+use Wirecard\PaymentSdk\Transaction\CreditCardMotoTransaction;
 use Wirecard\PaymentSdk\Transaction\EpsTransaction;
 use Wirecard\PaymentSdk\Transaction\IdealTransaction;
+use Wirecard\PaymentSdk\Transaction\MaestroTransaction;
+use Wirecard\PaymentSdk\Transaction\MasterpassTransaction;
 use Wirecard\PaymentSdk\Transaction\PayPalTransaction;
 use Wirecard\PaymentSdk\Transaction\PaysafecardTransaction;
-use Wirecard\PaymentSdk\Transaction\RatepayInstallmentTransaction;
-use Wirecard\PaymentSdk\Transaction\RatepayInvoiceTransaction;
-use Wirecard\PaymentSdk\Transaction\RatepayDirectDebitTransaction;
-use Wirecard\PaymentSdk\Transaction\SofortTransaction;
-use Wirecard\PaymentSdk\Transaction\MasterpassTransaction;
-use Wirecard\PaymentSdk\Transaction\AlipayCrossborderTransaction;
 use Wirecard\PaymentSdk\Transaction\PoiPiaTransaction;
 use Wirecard\PaymentSdk\Transaction\PtwentyfourTransaction;
-use Wirecard\PaymentSdk\Transaction\CreditCardMotoTransaction;
+use Wirecard\PaymentSdk\Transaction\RatepayDirectDebitTransaction;
+use Wirecard\PaymentSdk\Transaction\RatepayInstallmentTransaction;
+use Wirecard\PaymentSdk\Transaction\RatepayInvoiceTransaction;
+use Wirecard\PaymentSdk\Transaction\SofortTransaction;
 use Wirecard\PaymentSdk\Transaction\UpopTransaction;
 
 // ## Connection
@@ -189,3 +191,11 @@ $upopMAID = 'a908b093-382c-4de9-b26a-624802850216';
 $upopSecret = 'b2f8ffd2-7866-44ed-a858-f27f13f0bd77';
 $upopConfig = new PaymentMethodConfig(UpopTransaction::NAME, $upopMAID, $upopSecret);
 $config->add($upopConfig);
+
+// ### Maestro
+
+$maestroMAID = '53f2895a-e4de-4e82-a813-0d87a10e55e6';
+$maestroSecretKey = 'dbc5a498-9a66-43b9-bf1d-a618dd399684';
+$maestroConfig = new PaymentMethodConfig(MaestroTransaction::NAME, $maestroMAID, $maestroSecretKey);
+
+$config->add($maestroConfig);

@@ -48,7 +48,7 @@ class CreditCardTransaction extends Transaction implements Reservable
     /**
      * @var string
      */
-    private $tokenId;
+    protected $tokenId;
 
     /**
      * @var string
