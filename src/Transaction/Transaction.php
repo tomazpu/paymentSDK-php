@@ -570,6 +570,24 @@ abstract class Transaction extends Risk
         return $this->redirect->getSuccessUrl();
     }
 
+    public function getCancelUrl()
+    {
+        if (null === $this->redirect) {
+            return null;
+        }
+
+        return $this->redirect->getCancelUrl();
+    }
+
+    public function getFailureUrl()
+    {
+        if (null === $this->redirect) {
+            return null;
+        }
+
+        return $this->redirect->getFailureUrl();
+    }
+
     /**
      * @return Amount
      */

@@ -40,6 +40,7 @@ use Wirecard\PaymentSdk\Entity\Periodic;
 use Wirecard\PaymentSdk\Exception\MandatoryFieldMissingException;
 use Wirecard\PaymentSdk\Exception\UnconfiguredPaymentMethodException;
 use Wirecard\PaymentSdk\Transaction\Transaction;
+use Wirecard\PaymentSdk\TransactionService;
 
 /**
  * Class RequestMapper
@@ -130,9 +131,27 @@ class RequestMapper
             $requestData = array_merge($requestData, $customFields->mappedSeamlessProperties());
         }
 
+
         if (strlen($transaction->getNotificationUrl())) {
-            $requestData['notification_transaction_url'] = $transaction->getNotificationUrl();
+            $notificationUrl = $transaction->getNotificationUrl();
+            $requestData['notification_url_1'] = $notificationUrl;
+
+            $requestData['notification_transaction_url'] = $notificationUrl;
             $requestData['notifications_format'] = 'application/xml';
+        }
+
+        if (null !== $transaction->getSuccessUrl()) {
+            $requestData['success_redirect_url'] = $transaction->getSuccessUrl();
+        }
+
+        //cancel_redirect_url gets ignored, hence the use of redirect_url
+        if (null !== $transaction->getCancelUrl()) {
+            $requestData['redirect_url'] = $transaction->getCancelUrl();
+        }
+
+        //failure_redirect_url gets ignored, hence the use of redirect_url
+        if (null !== $transaction->getFailureUrl()) {
+            $requestData['redirect_url'] = $transaction->getFailureUrl();
         }
 
         if (null !== $transaction->getDescriptor()) {

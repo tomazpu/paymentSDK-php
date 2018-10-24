@@ -75,6 +75,10 @@ class TransactionService
 {
     const APPLICATION_JSON = 'application/json';
     const REQUEST_ID = 'request_id';
+    const WPP_INSTANCES = array(
+        'https://wpp-wdcee-test.wirecard.com',
+        'https://wpp-test.wirecard.com',
+        );
 
     /**
      * @var Config
@@ -302,6 +306,28 @@ class TransactionService
             $transactionType = $paymentAction;
         }
 
+        $requestData = $this->getRequestData($transactionType, $merchantAccountId, $amount, $language, $isThreeD);
+
+        $requestData = $this->requestMapper->mapSeamlessRequest($transaction, $requestData);
+
+        $requestData['request_signature'] = $this->toSha256($requestData, $secret);
+
+        return json_encode($requestData);
+    }
+
+    /**
+     * Get request data
+     *
+     * @param string $transactionType
+     * @param string $merchantAccountId
+     * @param Amount $amount
+     * @param string $language
+     * @param bool $isThreeD
+     * @return array
+     * @since 3.4.3
+     */
+    public function getRequestData($transactionType, $merchantAccountId, $amount, $language, $isThreeD)
+    {
         $requestData = array(
             'request_time_stamp' => gmdate('YmdHis'),
             self::REQUEST_ID => call_user_func($this->requestIdGenerator, 64),
@@ -313,12 +339,33 @@ class TransactionService
             'payment_method' => 'creditcard',
             'attempt_three_d' => $isThreeD ? true : false,
         );
+        if ($this->isWppEnabled()) {
+            $requestData['wpp_options_mode'] = 'seamless';
+            $requestData['wpp_options_theme'] = '';
+            $requestData['username'] = $this->config->getHttpUser();
+        }
+        return $requestData;
+    }
 
-        $requestData = $this->requestMapper->mapSeamlessRequest($transaction, $requestData);
+    /**
+     * Check if wpp is enabled
+     *
+     * @return bool
+     * @since 3.4.3
+     */
+    public function isWppEnabled()
+    {
+        $baseUrl = $this->config->getBaseUrl();
+        $status = false;
 
-        $requestData['request_signature'] = $this->toSha256($requestData, $secret);
+        if (in_array($baseUrl, self::WPP_INSTANCES)) {
+            $status = true;
+        }
 
-        return json_encode($requestData);
+        //TODO: Remove $status overwrite once WPP is publicly available
+        $status = false;
+
+        return $status;
     }
 
     /**
