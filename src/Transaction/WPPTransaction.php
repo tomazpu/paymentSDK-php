@@ -38,6 +38,7 @@ use Wirecard\PaymentSdk\Exception\UnsupportedOperationException;
 /**
  * Class WPPTransaction
  * @package Wirecard\PaymentSdk\Transaction
+ * @since 3.5.0
  */
 class WPPTransaction extends Transaction implements Reservable
 {

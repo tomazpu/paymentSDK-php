@@ -563,14 +563,19 @@ class TransactionService
     /**
      * @param $endpoint
      * @param string $requestBody
+     * @param boolean $sendShopHeader
      * @throws \RuntimeException
      * @return string
      */
-    private function sendPostRequest($endpoint, $requestBody)
+    private function sendPostRequest($endpoint, $requestBody, $sendShopHeader = true)
     {
         $this->getLogger()->debug('Request body: ' . $requestBody);
 
-        $requestHeader = array_merge_recursive($this->httpHeader, $this->config->getShopHeader());
+        if ($sendShopHeader) {
+            $requestHeader = array_merge_recursive($this->httpHeader, $this->config->getShopHeader());
+        } else {
+            $requestHeader = $this->httpHeader;
+        }
 
         $request = $this->messageFactory->createRequest('POST', $endpoint, $requestHeader, $requestBody);
         $request = $this->basicAuth->authenticate($request);
@@ -656,10 +661,14 @@ class TransactionService
                 }
             }
         }
-
         $requestBody = $this->requestMapper->map($transaction);
         $endpoint = $this->config->getBaseUrl() . $transaction->getEndpoint();
-        $responseContent = $this->sendPostRequest($endpoint, $requestBody);
+        if ($transaction::NAME == 'wpp') {
+            $responseContent = $this->sendPostRequest($endpoint, $requestBody, false);
+        } else {
+            $responseContent = $this->sendPostRequest($endpoint, $requestBody, true);
+        }
+        //check response mapping, other behaviour for wpp
         $response = $this->responseMapper->map($responseContent, $transaction);
 
         if (null !== $response) {

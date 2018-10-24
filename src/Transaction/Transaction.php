@@ -445,6 +445,41 @@ abstract class Transaction extends Risk
     }
 
     /**
+     * @throws MandatoryFieldMissingException
+     * @throws UnsupportedOperationException
+     * @return array
+     *
+     * A template method for the mapping of the transaction properties for wpp:
+     *  - the common properties are mapped here,
+     *  - an abstract operation is defined for the payment type specific properties.
+     *
+     * @since 3.5.0
+     */
+    public function mappedWPPProperties()
+    {
+        $result = [];
+        $result = array_merge($result, parent::mappedProperties());
+
+        if ($this->amount instanceof Amount) {
+            $result['requested-amount'] = $this->amount->mappedProperties();
+        }
+
+        if ($this->redirect instanceof Redirect) {
+            $result['success-redirect-url'] = $this->redirect->getSuccessUrl();
+            if ($this->redirect->getCancelUrl()) {
+                $result['cancel-redirect-url'] = $this->redirect->getCancelUrl();
+            }
+            if ($this->redirect->getFailureUrl()) {
+                $result['fail-redirect-url'] = $this->redirect->getFailureUrl();
+            }
+        }
+        $result[self::PARAM_TRANSACTION_TYPE] = $this->retrieveTransactionType();
+        $specificProperties = $this->mappedSpecificProperties();
+
+        return array_merge($result, $specificProperties);
+    }
+
+    /**
      * @return string
      */
     protected function paymentMethodNameForRequest()

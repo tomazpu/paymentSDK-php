@@ -86,11 +86,20 @@ class RequestMapper
         $paymentMethodConfig = $this->config->get($configKey);
         $paymentMethodConfigProperties = $paymentMethodConfig->mappedProperties();
 
-        $allProperties = array_merge(
-            $commonProperties,
-            $paymentMethodConfigProperties,
-            $transaction->mappedProperties()
-        );
+        // transaction mapping without additional fields for wpp payment
+        if ($transaction::NAME == 'wpp') {
+            $allProperties = array_merge(
+                $commonProperties,
+                $paymentMethodConfigProperties,
+                $transaction->mappedWPPProperties()
+            );
+        } else {
+            $allProperties = array_merge(
+                $commonProperties,
+                $paymentMethodConfigProperties,
+                $transaction->mappedProperties()
+            );
+        }
 
         $result = [Transaction::PARAM_PAYMENT => $allProperties];
 
