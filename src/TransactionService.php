@@ -37,6 +37,7 @@ use Http\Client\Common\HttpMethodsClient as Client;
 use Http\Message\Authentication\BasicAuth;
 use Monolog\Handler\ErrorLogHandler;
 use Monolog\Logger;
+use PHP_CodeSniffer\Reports\Xml;
 use Psr\Log\LoggerInterface;
 use Wirecard\PaymentSdk\Config\Config;
 use Wirecard\PaymentSdk\Config\CreditCardConfig;
@@ -47,8 +48,9 @@ use Wirecard\PaymentSdk\Exception\MalformedResponseException;
 use Wirecard\PaymentSdk\Exception\MandatoryFieldMissingException;
 use Wirecard\PaymentSdk\Exception\UnconfiguredPaymentMethodException;
 use Wirecard\PaymentSdk\Exception\UnsupportedOperationException;
+use Wirecard\PaymentSdk\Mapper\JsonResponseMapper;
+use Wirecard\PaymentSdk\Mapper\XmlResponseMapper;
 use Wirecard\PaymentSdk\Mapper\RequestMapper;
-use Wirecard\PaymentSdk\Mapper\ResponseMapper;
 use Wirecard\PaymentSdk\Response\FailureResponse;
 use Wirecard\PaymentSdk\Response\FormInteractionResponse;
 use Wirecard\PaymentSdk\Response\InteractionResponse;
@@ -74,6 +76,7 @@ use Wirecard\PaymentSdk\Transaction\UpiTransaction;
 class TransactionService
 {
     const APPLICATION_JSON = 'application/json';
+    const APPLICATION_XML = 'application/xml';
     const REQUEST_ID = 'request_id';
 
     /**
@@ -97,7 +100,7 @@ class TransactionService
     private $requestMapper;
 
     /**
-     * @var ResponseMapper
+     * @var XmlResponseMapper
      */
     private $responseMapper;
 
@@ -132,14 +135,14 @@ class TransactionService
      * @param Config $config
      * @param LoggerInterface|null $logger
      * @param RequestMapper|null $requestMapper
-     * @param ResponseMapper|null $responseMapper
+     * @param XmlResponseMapper|null $responseMapper
      * @param \Closure|null $requestIdGenerator
      */
     public function __construct(
         Config $config,
         LoggerInterface $logger = null,
         RequestMapper $requestMapper = null,
-        ResponseMapper $responseMapper = null,
+        XmlResponseMapper $responseMapper = null,
         \Closure $requestIdGenerator = null
     ) {
         $this->config = $config;
@@ -162,12 +165,20 @@ class TransactionService
 
         $this->requestMapper =
             $requestMapper !== null ? $requestMapper : new RequestMapper($this->config, $this->requestIdGenerator);
-        $this->responseMapper = $responseMapper !== null ? $responseMapper : new ResponseMapper($this->config);
+        $this->responseMapper = $responseMapper !== null ? $responseMapper : new XmlResponseMapper($this->config);
 
-        $this->httpHeader = array(
-            'Content-Type' => self::APPLICATION_JSON,
-            'Accept' => 'application/xml'
-        );
+        $this->setHeader();
+    }
+
+    /**
+     * @param array $header
+     * @since 3.5.0
+     * @return array
+     */
+    private function setHeader($header = array('Content-Type' => self::APPLICATION_JSON, 'Accept' => self::APPLICATION_XML))
+    {
+        $this->httpHeader = $header;
+        return $this->httpHeader;
     }
 
     /**
@@ -223,6 +234,12 @@ class TransactionService
         // Synchronous payment methods
         if (null === $data && array_key_exists('sync_response', $payload)) {
             $data = $this->responseMapper->mapInclSignature($payload['sync_response']);
+        }
+
+        // WPP response
+        if (null === $data && array_key_exists('response-base64', $payload)) {
+            $this->responseMapper = new JsonResponseMapper($this->config);
+            $data = $this->responseMapper->mapInclSignature($payload['response-base64']);
         }
 
         if ($data instanceof Response) {
@@ -563,19 +580,13 @@ class TransactionService
     /**
      * @param $endpoint
      * @param string $requestBody
-     * @param boolean $sendShopHeader
+     * @param array $requestHeader
      * @throws \RuntimeException
      * @return string
      */
-    private function sendPostRequest($endpoint, $requestBody, $sendShopHeader = true)
+    private function sendPostRequest($endpoint, $requestBody, $requestHeader)
     {
         $this->getLogger()->debug('Request body: ' . $requestBody);
-
-        if ($sendShopHeader) {
-            $requestHeader = array_merge_recursive($this->httpHeader, $this->config->getShopHeader());
-        } else {
-            $requestHeader = $this->httpHeader;
-        }
 
         $request = $this->messageFactory->createRequest('POST', $endpoint, $requestHeader, $requestBody);
         $request = $this->basicAuth->authenticate($request);
@@ -663,12 +674,19 @@ class TransactionService
         }
         $requestBody = $this->requestMapper->map($transaction);
         $endpoint = $this->config->getBaseUrl() . $transaction->getEndpoint();
+
+        $requestHeader = array_merge_recursive($this->httpHeader, $this->config->getShopHeader());
         if ($transaction::NAME == 'wpp') {
-            $responseContent = $this->sendPostRequest($endpoint, $requestBody, false);
-        } else {
-            $responseContent = $this->sendPostRequest($endpoint, $requestBody, true);
+            $requestHeader = $this->setHeader(
+                array(
+                    'Content-Type' => self::APPLICATION_JSON,
+                    'Accept' => self::APPLICATION_JSON
+                )
+            );
+            $this->responseMapper = new JsonResponseMapper($this->config);
         }
-        //check response mapping, other behaviour for wpp
+
+        $responseContent = $this->sendPostRequest($endpoint, $requestBody, $requestHeader);
         $response = $this->responseMapper->map($responseContent, $transaction);
 
         if (null !== $response) {
@@ -791,8 +809,7 @@ class TransactionService
             $this->config->get($paymentMethod)->getMerchantAccountId() .
             '/payments/?request_id=' . $requestId;
 
-        $response = $this->sendGetRequest($endpoint, $acceptJson, $logNotFound);
-        return $response;
+        return $this->sendGetRequest($endpoint, $acceptJson, $logNotFound);
     }
 
     /**

@@ -17,6 +17,8 @@ use Wirecard\PaymentSdk\Entity\Amount;
 use Wirecard\PaymentSdk\Entity\Redirect;
 use Wirecard\PaymentSdk\Transaction\WPPTransaction;
 use Wirecard\PaymentSdk\TransactionService;
+use Wirecard\PaymentSdk\Response\InteractionResponse;
+use Wirecard\PaymentSdk\Response\FailureResponse;
 
 
 // ### Transaction related objects
@@ -47,7 +49,29 @@ $transaction->setAccountHolder($accountHolder);
 $transactionService = new TransactionService($config);
 $response = $transactionService->reserve($transaction);
 
-// ## Response handling has to be implemented here
+// ## Response handling
 
+// The response of the service must be handled depending on it's class
+// In case of an `InteractionResponse`, a browser interaction by the consumer is required
+// in order to continue the payment process. In this example we proceed with a header redirect
+// to the given _redirectUrl_. IFrame integration using this URL is also possible.
+if ($response instanceof InteractionResponse) {
+    die("<meta http-equiv='refresh' content='0;url={$response->getRedirectUrl()}'>");
+
+// The failure state is represented by a FailureResponse object.
+// In this case the returned errors should be stored in your system.
+} elseif ($response instanceof FailureResponse) {
+// In our example we iterate over all errors and echo them out. You should display them as
+// error, warning or information based on the given severity.
+    foreach ($response->getStatusCollection() as $status) {
+        /**
+         * @var $status \Wirecard\PaymentSdk\Entity\Status
+         */
+        $severity = ucfirst($status->getSeverity());
+        $code = $status->getCode();
+        $description = $status->getDescription();
+        echo sprintf('%s with code %s and message "%s" occurred.<br>', $severity, $code, $description);
+    }
+}
 //Footer design
 require __DIR__ . '/../inc/footer.php';

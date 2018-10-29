@@ -57,12 +57,15 @@ class InteractionResponse extends Response
      * InteractionResponse constructor.
      * @param \SimpleXmlElement $simpleXml
      * @param string $redirectUrl - Redirect url of the external service provider
+     * @param bool $jsonResponse
      * @throws MalformedResponseException
      */
-    public function __construct($simpleXml, $redirectUrl)
+    public function __construct($simpleXml, $redirectUrl, $jsonResponse = false)
     {
-        parent::__construct($simpleXml);
-        $this->transactionId = $this->findElement('transaction-id');
+        parent::__construct($simpleXml, $jsonResponse);
+        if (!$jsonResponse) {
+            $this->transactionId = $this->findElement('transaction-id');
+        }
         $this->redirectUrl = $redirectUrl;
     }
 

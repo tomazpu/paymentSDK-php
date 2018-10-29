@@ -116,13 +116,16 @@ abstract class Response
     /**
      * Response constructor.
      * @param SimpleXMLElement $simpleXml
+     * @param bool $jsonResponse
      * @throws MalformedResponseException
      */
-    public function __construct($simpleXml)
+    public function __construct($simpleXml, $jsonResponse = false)
     {
         $this->simpleXml = $simpleXml;
         $this->statusCollection = $this->generateStatusCollection();
-        $this->setValueForRequestId();
+        if (!$jsonResponse) {
+            $this->setValueForRequestId();
+        }
         $this->setBasket();
         $this->setRequestedAmount();
         $this->setAccountHolder();

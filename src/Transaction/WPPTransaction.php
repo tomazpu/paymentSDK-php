@@ -42,7 +42,7 @@ use Wirecard\PaymentSdk\Exception\UnsupportedOperationException;
  */
 class WPPTransaction extends Transaction implements Reservable
 {
-    const ENDPOINT_PAYMENTS = '/api/payment/register/';
+    const ENDPOINT_PAYMENTS = '/api/payment/register';
     const NAME = 'wpp';
 
     /**
