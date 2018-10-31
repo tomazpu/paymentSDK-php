@@ -263,6 +263,11 @@ abstract class Response
      */
     private function setRequestedAmount()
     {
+        //WPP sends no amount in response
+        if ($this instanceof FailureResponse && $this->responseData instanceof JsonResponse) {
+            return;
+        }
+
         $amount = $this->responseData->getRequestedAmount();
         if ($amount) {
             $this->requestedAmount = $amount;
