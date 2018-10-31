@@ -32,6 +32,7 @@
 namespace Wirecard\PaymentSdk\Response;
 
 use Wirecard\PaymentSdk\Exception\MalformedResponseException;
+use SimpleXMLElement;
 
 /**
  * Class InteractionResponse
@@ -55,15 +56,14 @@ class InteractionResponse extends Response
 
     /**
      * InteractionResponse constructor.
-     * @param \SimpleXmlElement $simpleXml
+     * @param SimpleXmlElement|string $responsePayload
      * @param string $redirectUrl - Redirect url of the external service provider
-     * @param bool $jsonResponse
      * @throws MalformedResponseException
      */
-    public function __construct($simpleXml, $redirectUrl, $jsonResponse = false)
+    public function __construct($responsePayload, $redirectUrl)
     {
-        parent::__construct($simpleXml, $jsonResponse);
-        if (!$jsonResponse) {
+        if ($responsePayload instanceof SimpleXMLElement) {
+            parent::__construct($responsePayload);
             $this->transactionId = $this->findElement('transaction-id');
         }
         $this->redirectUrl = $redirectUrl;

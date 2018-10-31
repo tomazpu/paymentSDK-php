@@ -66,6 +66,7 @@ use Wirecard\PaymentSdk\Transaction\RatepayInvoiceTransaction;
 use Wirecard\PaymentSdk\Transaction\Reservable;
 use Wirecard\PaymentSdk\Transaction\Transaction;
 use Wirecard\PaymentSdk\Transaction\UpiTransaction;
+use Wirecard\PaymentSdk\Transaction\WPPTransaction;
 
 /**
  * Class TransactionService
@@ -239,7 +240,8 @@ class TransactionService
         // WPP response
         if (null === $data && array_key_exists('response-base64', $payload)) {
             $this->responseMapper = new JsonResponseMapper($this->config);
-            $data = $this->responseMapper->mapInclSignature($payload['response-base64']);
+            $wppConfig = $this->config->get(WPPTransaction::NAME);
+            $data = $this->responseMapper->mapInclSignature($payload['response-base64'], $payload['response-signature-base64'], $wppConfig->getSecret());
         }
 
         if ($data instanceof Response) {

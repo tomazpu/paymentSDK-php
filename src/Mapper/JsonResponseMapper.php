@@ -33,10 +33,10 @@ namespace Wirecard\PaymentSdk\Mapper;
 
 use Wirecard\PaymentSdk\Response\FailureResponse;
 use Wirecard\PaymentSdk\Response\InteractionResponse;
+use Wirecard\PaymentSdk\Response\SuccessResponse;
 use Wirecard\PaymentSdk\Transaction\Transaction;
 use Wirecard\PaymentSdk\Exception\MalformedResponseException;
 use Wirecard\PaymentSdk\Response\Response;
-use SimpleXMLElement;
 
 /**
  * Class JsonResponseMapper
@@ -47,33 +47,43 @@ class JsonResponseMapper extends ResponseMapper
     /**
      * Map the json Response from Wirecard's Payment Page to ResponseObjects
      *
-     * @param string $response
+     * @param string $jsonPayload
      * @param Transaction $transaction
      * @throws \InvalidArgumentException
      * @throws MalformedResponseException
      * @return Response
      */
-    public function map($response, Transaction $transaction = null)
+    public function map($jsonPayload, Transaction $transaction = null)
     {
-        $response = parent::map($response);
-        return $this->parseJsonToXml($response);
+        ini_set('xdebug.var_display_max_depth', '10');
+        ini_set('xdebug.var_display_max_children', '256');
+        ini_set('xdebug.var_display_max_data', '1024');
+        $payload = json_decode(parent::map($jsonPayload));
+        switch ($this->checkResponse($payload)) {
+            case "success":
+                $response = new SuccessResponse($payload);
+                var_dump($payload);die();
+                break;
+            case "interaction":
+                $response = new InteractionResponse($payload, $payload->{'payment-redirect-url'});
+                break;
+            case "error":
+                $response = new FailureResponse($payload);
+                break;
+        }
+
+        return $response;
     }
 
-    /**
-     * @param string $jsonResponse
-     * @return Response
-     */
-    public function parseJsonToXml($jsonResponse)
+    private function checkResponse($payload)
     {
-        $payload = json_decode($jsonResponse, true);
-        $responseXml = new SimpleXMLElement('<payment></payment>');
-        //add statuses
-        $this->simpleXmlAppendNode($responseXml, $this->parseResponseStatus($payload));
-
-        if (key_exists('errors', $payload)) {
-            $response = new FailureResponse($responseXml);
+        $response = null;
+        if (key_exists('errors', $payload) || isset($payload->{'payment'}) && $payload->{'payment'}->{'transaction-state'} === 'failed') {
+            $response = "error";
         } else if (key_exists('payment-redirect-url', $payload)) {
-            $response = new InteractionResponse($responseXml, $payload['payment-redirect-url'], true);
+            $response = "interaction";
+        } else if ($payload->{'payment'}->{'transaction-state'} === 'success') {
+            $response = "success";
         } else {
             throw new MalformedResponseException('Unexpected blabla bla came in!');
         }
@@ -82,27 +92,13 @@ class JsonResponseMapper extends ResponseMapper
     }
 
     /**
-     * @param array $payload
-     * @return mixed
+     * @param string $responseBase64
+     * @param string $signatureBase64
+     * @return bool
      */
-    public function parseResponseStatus($payload)
+    public function validateSignature($responseBase64, $signatureBase64, $merchantSecretKey)
     {
-        $statusesXml = new SimpleXMLElement('<statuses></statuses>');
-        if (key_exists('errors', $payload)) {
-            foreach ($payload['errors'] as $error) {
-                $statusXml = new SimpleXMLElement('<status></status>');
-                $statusXml->addAttribute('code', $error['code']);
-                $statusXml->addAttribute('description', $error['description']);
-                //We get no severity in the json response
-                $statusXml->addAttribute('severity', '1');
-                $this->simpleXmlAppendNode($statusesXml, $statusXml);
-            }
-        } else {
-            $statusXml = new SimpleXMLElement('<status></status>');
-            $statusXml->addAttribute('code', '200');
-            $statusXml->addAttribute('description', 'success');
-        }
-
-        return $statusesXml;
+        $signature = hash_hmac('sha256', base64_decode($responseBase64), $merchantSecretKey);
+        return hash_equals($signature, base64_decode($signatureBase64));
     }
 }

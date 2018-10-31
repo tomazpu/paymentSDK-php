@@ -58,13 +58,13 @@ class FormInteractionResponse extends Response
 
     /**
      * FormInteractionResponse constructor.
-     * @param \SimpleXMLElement $simpleXml
+     * @param \SimpleXMLElement|string $responsePayload
      * @param string $url
      * @throws MalformedResponseException
      */
-    public function __construct($simpleXml, $url)
+    public function __construct($responsePayload, $url)
     {
-        parent::__construct($simpleXml);
+        parent::__construct($responsePayload);
         $this->url = $url;
         $this->transactionId = $this->findElement('transaction-id');
     }
