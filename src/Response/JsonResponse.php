@@ -140,8 +140,8 @@ class JsonResponse
 
     public function findElement($element)
     {
-        if (isset($this->json->{$element})) {
-            return (string)$this->json->{$element};
+        if (isset($this->json->{'payment'}->{$element})) {
+            return (string)$this->json->{'payment'}->{$element};
         }
 
         throw new MalformedResponseException('Missing ' . $element . ' in response.');
@@ -154,5 +154,26 @@ class JsonResponse
         }
 
         return null;
+    }
+
+    /**
+     * @return string
+     * @throws MalformedResponseException
+     */
+    public function findProviderTransactionId()
+    {
+        $result = null;
+        foreach ($this->json->{'payment'}->{'statuses'}->{'status'} as $status) {
+            if ($result === null) {
+                $result = $status['provider-transaction-id'];
+            }
+
+            if (isset($status['provider-transaction-id']) &&
+                strcmp($result, $status['provider-transaction-id']) !== 0) {
+                throw new MalformedResponseException('More different provider transaction ID-s in response.');
+            }
+        }
+
+        return (string)$result;
     }
 }

@@ -133,7 +133,6 @@ abstract class Response
         } else {
             $this->responseData = new JsonResponse($responsePayload);
         }
-
         $this->statusCollection = $this->responseData->generateStatusCollection();//done xml
         $this->setValueForRequestId();//done xml
         $this->setRequestedAmount();//done xml
@@ -388,5 +387,14 @@ abstract class Response
     public function setCard()
     {
         $this->card = new Card($this->simpleXml);
+    }
+
+    /**
+     * @return string
+     * @throws MalformedResponseException
+     */
+    protected function findProviderTransactionId()
+    {
+        return $this->responseData->findProviderTransactionId();
     }
 }

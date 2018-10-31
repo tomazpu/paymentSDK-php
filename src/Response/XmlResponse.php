@@ -246,4 +246,25 @@ class XmlResponse
 
         return $customFieldCollection;
     }
+
+    /**
+     * @return string
+     * @throws MalformedResponseException
+     */
+    public function findProviderTransactionId()
+    {
+        $result = null;
+        foreach ($this->simpleXml->{'statuses'}->{'status'} as $status) {
+            if ($result === null) {
+                $result = $status['provider-transaction-id'];
+            }
+
+            if (isset($status['provider-transaction-id']) &&
+                strcmp($result, $status['provider-transaction-id']) !== 0) {
+                throw new MalformedResponseException('More different provider transaction ID-s in response.');
+            }
+        }
+
+        return (string)$result;
+    }
 }

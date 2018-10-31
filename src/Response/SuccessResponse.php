@@ -57,33 +57,10 @@ class SuccessResponse extends Response
     public function __construct($responsePayload)
     {
         parent::__construct($responsePayload);
-        var_dump($this->findElement('transaction-id'));die();
         $this->transactionId = $this->findElement('transaction-id');
         $this->providerTransactionId = $this->findProviderTransactionId();
         $this->transactionType = $this->findElement('transaction-type');
     }
-
-    /**
-     * @return string
-     * @throws MalformedResponseException
-     */
-    private function findProviderTransactionId()
-    {
-        $result = null;
-        foreach ($this->simpleXml->{'statuses'}->{'status'} as $status) {
-            if ($result === null) {
-                $result = $status['provider-transaction-id'];
-            }
-
-            if (isset($status['provider-transaction-id']) &&
-                strcmp($result, $status['provider-transaction-id']) !== 0) {
-                throw new MalformedResponseException('More different provider transaction ID-s in response.');
-            }
-        }
-
-        return (string)$result;
-    }
-
 
     /**
      * @return string
