@@ -390,7 +390,7 @@ abstract class Response
     }
 
     /**
-     * @return string
+     * @return array
      * @throws MalformedResponseException
      */
     protected function findProviderTransactionId()

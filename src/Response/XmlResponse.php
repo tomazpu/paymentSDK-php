@@ -248,23 +248,18 @@ class XmlResponse
     }
 
     /**
-     * @return string
+     * @return array
      * @throws MalformedResponseException
      */
     public function findProviderTransactionId()
     {
-        $result = null;
+        $result = [];
         foreach ($this->simpleXml->{'statuses'}->{'status'} as $status) {
-            if ($result === null) {
-                $result = $status['provider-transaction-id'];
-            }
-
-            if (isset($status['provider-transaction-id']) &&
-                strcmp($result, $status['provider-transaction-id']) !== 0) {
-                throw new MalformedResponseException('More different provider transaction ID-s in response.');
+            if (isset($status['provider-transaction-id'])) {
+                $result[] = $status['provider-transaction-id'];
             }
         }
 
-        return (string)$result;
+        return (array)$result;
     }
 }

@@ -45,7 +45,7 @@ class SuccessResponse extends Response
     private $transactionId;
 
     /**
-     * @var string
+     * @var array
      */
     private $providerTransactionId;
 
@@ -71,7 +71,7 @@ class SuccessResponse extends Response
     }
 
     /**
-     * @return string
+     * @return array
      */
     public function getProviderTransactionId()
     {

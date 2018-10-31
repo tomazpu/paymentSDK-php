@@ -69,7 +69,38 @@ class JsonResponse
     {
         $collection = new StatusCollection();
 
-        $statuses = $this->json->{'payment'}->{'statuses'};
+        if (isset($this->json->{'errors'})) {
+            $collection = $this->processStatusCollectionFromErrors(
+                $this->json->{'errors'},
+                $collection
+            );
+        } else {
+            $collection = $this->processStatusCollectionFromStatuses(
+                $this->json->{'payment'}->{'statuses'},
+                $collection
+            );
+        }
+
+        return $collection;
+    }
+
+    private function processStatusCollectionFromErrors($statuses, $collection)
+    {
+        foreach ($statuses as $status) {
+            $collection->add(
+                new Status(
+                    $status->{'code'},
+                    $status->{'description'},
+                    ''//we get no sevirity in the return
+                )
+            );
+        }
+
+        return $collection;
+    }
+
+    private function processStatusCollectionFromStatuses($statuses, $collection)
+    {
         if (count($statuses->{'status'}) > 0) {
             foreach ($statuses->{'status'} as $status) {
                 if ((string)$status->{'code'} !== '') {
@@ -105,19 +136,26 @@ class JsonResponse
 
     public function getAccountHolder()
     {
-        $accounHolderFields = array (
+        $accountHolderFields = array (
             'first-name' => 'setFirstName',
             'last-name' => 'setLastName',
-            'first-name' => 'setLastName'
+            'email' => 'setEmail',
+            'phone' => 'setPhone',
+            'address' => 'setAddress',
+            'crmid' => 'setCrmId',
+            'date-of-birth' => 'setDateOfBirth',
+            'gender' => 'setGender',
+            'shipping' => 'setShippingMethod', // only in shipping
+            'social-security-number' => 'setSocialSecurityNumber' //is newer send back by WPP
         );
+
         $accountHolder = new AccountHolder();
-/*
-        foreach ($accounHolderFields as $property => $setter) {
-            if ($this->json->{'payment'}->{'account-holder'}->{$property}) {
-                $accounHolderFields->$$setter();
+
+        foreach ($accountHolderFields as $property => $setter) {
+            if (isset($this->json->{'payment'}->{'account-holder'}->{$property})) {
+                $accountHolder->{$setter}($this->json->{'payment'}->{'account-holder'}->{$property});
             }
-        }*/
-        //@TODO for all other things for accountholder
+        }
 
         return $accountHolder;
     }
@@ -141,7 +179,11 @@ class JsonResponse
     public function findElement($element)
     {
         if (isset($this->json->{'payment'}->{$element})) {
-            return (string)$this->json->{'payment'}->{$element};
+            if (is_object($this->json->{'payment'}->{$element})) {
+                return (string)$this->json->{'payment'}->{$element}->{'value'};
+            } else {
+                return (string)$this->json->{'payment'}->{$element};
+            }
         }
 
         throw new MalformedResponseException('Missing ' . $element . ' in response.');
@@ -157,23 +199,18 @@ class JsonResponse
     }
 
     /**
-     * @return string
+     * @return array
      * @throws MalformedResponseException
      */
     public function findProviderTransactionId()
     {
-        $result = null;
+        $result = [];
         foreach ($this->json->{'payment'}->{'statuses'}->{'status'} as $status) {
-            if ($result === null) {
-                $result = $status['provider-transaction-id'];
-            }
-
-            if (isset($status['provider-transaction-id']) &&
-                strcmp($result, $status['provider-transaction-id']) !== 0) {
-                throw new MalformedResponseException('More different provider transaction ID-s in response.');
+            if (isset($status->{'provider-transaction-id'})) {
+                $result[] = $status->{'provider-transaction-id'};
             }
         }
 
-        return (string)$result;
+        return (array)$result;
     }
 }
