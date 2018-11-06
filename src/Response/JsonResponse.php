@@ -50,6 +50,7 @@ use Wirecard\PaymentSdk\TransactionService;
  */
 class JsonResponse
 {
+	const FORMAT = 'json';
     /**
      * @var string
      */
@@ -236,5 +237,22 @@ class JsonResponse
 		if (isset($this->json->{'payment'}->{'card-token'})) {
 			return $this->json->{'payment'}->{'card-token'};
 		}
+	}
+
+	public function getBasketData()
+	{
+		if (isset($this->json->{'payment'}->{'order-items'}->{'order-item'}) && count($this->json->{'payment'}->{'order-items'}->{'order-item'}) > 0) {
+			return $this->json->{'payment'}->{'order-items'}->{'order-item'};
+		}
+	}
+
+	public function getPaymentMethod()
+	{
+		return $this->json->{'payment'}->{'payment-methods'}->{'payment-method'}[0]->{'name'};
+	}
+
+	public function getFormat()
+	{
+		return $this::FORMAT;
 	}
 }

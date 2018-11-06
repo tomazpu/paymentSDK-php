@@ -127,19 +127,18 @@ abstract class Response
     {
         if ($responsePayload instanceof SimpleXMLElement) {
             $this->responseData = new XmlResponse($responsePayload);
-            $this->simpleXml = $responsePayload;//@TODO refactor succesresponse to work :) then we can remove this hack
-            $this->setBasket();
         } else {
             $this->responseData = new JsonResponse($responsePayload);
         }
 
-        $this->statusCollection = $this->responseData->generateStatusCollection();//done xml
-        $this->setValueForRequestId();//done xml json
-        $this->setRequestedAmount();//done xml json
-        $this->setAccountHolder();//done xml json
-        $this->setShipping();//done xml json
-        $this->setCustomFields();//done xml json
-	    $this->setCard(); //done xml json
+        $this->statusCollection = $this->responseData->generateStatusCollection();
+        $this->setValueForRequestId();
+        $this->setRequestedAmount();
+        $this->setAccountHolder();
+        $this->setShipping();
+        $this->setCustomFields();
+	    $this->setCard();
+	    $this->setBasket();
     }
 
     /**
@@ -254,7 +253,11 @@ abstract class Response
     {
         $basket = new Basket();
 
-        $this->basket = $basket->parseFromXml($this->simpleXml);
+	    $this->basket = $basket->parseBasket(
+	    	$this->responseData->getPaymentMethod(),
+		    $this->responseData->getBasketData(),
+		    $this->responseData->getFormat()
+	    );
     }
 
     /**

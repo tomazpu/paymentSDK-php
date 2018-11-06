@@ -153,23 +153,17 @@ class Basket implements \IteratorAggregate, MappableEntity
     }
 
     /**
-     * Parse simplexml and create basket object
-     * @param SimpleXMLElement $simpleXml
+     * Parse object and create basket object
+     * @param string $paymentMethod
+     * @param array $orderItems
+     * @param string $format
      * @return Basket
      * @since 3.2.0
      */
-    public function parseFromXml($simpleXml)
+    public function parseBasket($paymentMethod, $orderItems, $format = 'xml')
     {
-        if (!isset($simpleXml->{'order-items'})) {
-            return;
-        }
-
-        if ($simpleXml->{'order-items'}->children()->count() < 1) {
-            return;
-        }
-
         $basketVersion = '';
-        switch ((string)$simpleXml->{'payment-methods'}->{'payment-method'}['name']) {
+        switch ($paymentMethod) {
             case PayPalTransaction::NAME:
                 $basketVersion = PayPalTransaction::class;
                 break;
@@ -179,31 +173,47 @@ class Basket implements \IteratorAggregate, MappableEntity
                 break;
         }
 
-        foreach ($simpleXml->{'order-items'}->children() as $orderItem) {
-            $amountAttrs = $orderItem->amount->attributes();
-            $amount = new Amount(
-                (float)$orderItem->amount,
-                (string)$amountAttrs->currency
-            );
-
+        foreach ($orderItems as $orderItem) {
+            $amount = $this->getAmount($orderItem,'amount', $format);
             $basketItem = new Item((string)$orderItem->name, $amount, (int)$orderItem->quantity);
 
             if (isset($orderItem->{'tax-amount'})) {
-                $taxAmountAttrs = $orderItem->{'tax-amount'}->attributes();
-                $taxAmount = new Amount(
-                    (float)$orderItem->{'tax-amount'},
-                    (string)$taxAmountAttrs->currency
-                );
+                $taxAmount = $this->getAmount($orderItem,'tax-amount', $format);
                 $basketItem->setTaxAmount($taxAmount);
             }
-            $basketItem->setVersion($basketVersion)
-                ->setDescription((string)$orderItem->description)
-                ->setArticleNumber((string)$orderItem->{'article-number'});
+            $basketItem->setVersion($basketVersion);
+
+            if (isset($orderItem->description)) {
+	            $basketItem->setDescription((string) $orderItem->description);
+            }
+	        if (isset($orderItem->{'article-number'})) {
+		        $basketItem->setArticleNumber((string) $orderItem->{'article-number'});
+	        }
 
             $this->add($basketItem);
         }
 
         return $this;
+    }
+
+    private function getAmount($orderItem, $field, $format)
+    {
+    	$taxAmount = null;
+
+		if ($format === 'xml') {
+			$taxAmountAttrs = $orderItem->{$field}->attributes();
+			$taxAmount = new Amount(
+				(float) $orderItem->{$field},
+				(string) $taxAmountAttrs->currency
+			);
+		} else {
+			$taxAmount = new Amount(
+				(float) $orderItem->{$field}->{'value'},
+				(string) $orderItem->{$field}->{'currency'}
+			);
+		}
+
+		return $taxAmount;
     }
 
     /**

@@ -46,6 +46,8 @@ use Wirecard\PaymentSdk\Exception\MalformedResponseException;
  */
 class XmlResponse
 {
+	const FORMAT = 'xml';
+
     /**
      * @var SimpleXMLElement
      */
@@ -262,4 +264,22 @@ class XmlResponse
 	    	return $this->simpleXml->{'card-token'};
 	    }
     }
+
+    public function getBasketData()
+    {
+	    if (isset($this->simpleXml->{'order-items'}->{'order-item'})) {
+		    return $this->simpleXml->{'order-items'}->{'order-item'};
+	    }
+    }
+
+    public function getPaymentMethod()
+    {
+    	$attributes = $this->simpleXml->{'payment-methods'}->{'payment-method'}->attributes();
+    	return (string) $attributes->name;
+    }
+
+	public function getFormat()
+	{
+		return $this::FORMAT;
+	}
 }
