@@ -84,34 +84,34 @@ class TransactionDetails
 
     /**
      * TransactionDetails constructor.
-     * @param SimpleXMLElement $simpleXml
+     * @param object $responseData
      * @since 3.2.0
      */
-    public function __construct($simpleXml)
+    public function __construct($responseData)
     {
-        if (isset($simpleXml->{'merchant-account-id'})) {
-            $this->maid = $simpleXml->{'merchant-account-id'};
+        if (isset($responseData->{'merchant-account-id'})) {
+            $this->maid = $responseData->{'merchant-account-id'};
         }
-        if (isset($simpleXml->{'transaction-id'})) {
-            $this->transactionID = $simpleXml->{'transaction-id'};
+        if (isset($responseData->{'transaction-id'})) {
+            $this->transactionID = $responseData->{'transaction-id'};
         }
-        if (isset($simpleXml->{'request-id'})) {
-            $this->requestId = $simpleXml->{'request-id'};
+        if (isset($responseData->{'request-id'})) {
+            $this->requestId = $responseData->{'request-id'};
         }
-        if (isset($simpleXml->{'transaction-type'})) {
-            $this->transactionType = $simpleXml->{'transaction-type'};
+        if (isset($responseData->{'transaction-type'})) {
+            $this->transactionType = $responseData->{'transaction-type'};
         }
-        if (isset($simpleXml->{'transaction-state'})) {
-            $this->transactionState = $simpleXml->{'transaction-state'};
+        if (isset($responseData->{'transaction-state'})) {
+            $this->transactionState = $responseData->{'transaction-state'};
         }
-        if (isset($simpleXml->{'currency'})) {
-            $this->currency = $simpleXml->{'currency'};
+        if (isset($responseData->{'currency'})) {
+            $this->currency = $responseData->{'currency'};
         }
-        if (isset($simpleXml->{'requested-amount'})) {
-            $this->requestedAmount = $simpleXml->{'requested-amount'};
+        if (isset($responseData->{'requested-amount'})) {
+            $this->requestedAmount = $responseData->{'requested-amount'};
         }
-        if (isset($simpleXml->{'descriptor'})) {
-            $this->descriptor = $simpleXml->{'descriptor'};
+        if (isset($responseData->{'descriptor'})) {
+            $this->descriptor = $responseData->{'descriptor'};
         }
     }
 

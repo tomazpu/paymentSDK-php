@@ -69,11 +69,6 @@ abstract class Response
     private $validSignature = true;
 
     /**
-     * @var SimpleXMLElement
-     */
-    protected $simpleXml;
-
-    /**
      * @var string
      */
     protected $transactionType;
@@ -245,7 +240,7 @@ abstract class Response
     }
 
     /**
-     * Parse simplexml and create basket object
+     * Parse data form json or xml and create basket object
      *
      * @since 3.0.0
      */
@@ -261,7 +256,7 @@ abstract class Response
     }
 
     /**
-     * Parse simplexml and create requestedAmount object
+     * Parse parse data from json or xml and create requestedAmount object
      *
      * @since 3.0.0
      */
@@ -301,7 +296,7 @@ abstract class Response
     }
 
     /**
-     * parse simpleXml to load all custom fields
+     * parse json or xml to load all custom fields
      *
      * @since 3.0.0
      */
@@ -380,12 +375,17 @@ abstract class Response
 
     public function getPaymentDetails()
     {
-        return new PaymentDetails($this->simpleXml);
+        return new PaymentDetails(
+	        $this->responseData->getPaymentMethod(),
+        	$this->responseData->getDataForDetails()
+        );
     }
 
     public function getTransactionDetails()
     {
-        return new TransactionDetails($this->simpleXml);
+        return new TransactionDetails(
+        	$this->responseData->getDataForDetails()
+        );
     }
 
     public function getCard()

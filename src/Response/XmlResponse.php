@@ -282,4 +282,9 @@ class XmlResponse
 	{
 		return $this::FORMAT;
 	}
+
+	public function getDataForDetails()
+	{
+		return $this->simpleXml;
+	}
 }

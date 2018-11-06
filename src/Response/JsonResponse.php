@@ -255,4 +255,19 @@ class JsonResponse
 	{
 		return $this::FORMAT;
 	}
+
+	public function getDataForDetails()
+	{
+		$response = $this->json->{'payment'};
+		if (!is_string($response->{'merchant-account-id'})) {
+			$response->{'merchant-account-id'} = $this->json->{'payment'}->{'merchant-account-id'}->{'value'};
+		}
+		$requestedAmount = $this->json->{'payment'}->{'requested-amount'};
+		if (is_object($requestedAmount)) {
+			$response->{'currency'} = $requestedAmount->{'currency'};
+			$response->{'requested-amount'} = $requestedAmount->{'value'};
+		}
+
+		return $response;
+	}
 }

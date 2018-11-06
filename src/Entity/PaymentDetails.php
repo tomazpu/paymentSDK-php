@@ -69,25 +69,25 @@ class PaymentDetails
 
     /**
      * TransactionDetails constructor.
-     * @param SimpleXMLElement $simpleXml
+     * @param string $paymentMethod
+     * @param object $responseData
      * @since 3.2.0
      */
-    public function __construct($simpleXml)
+    public function __construct($paymentMethod, $responseData)
     {
-        if (isset($simpleXml->{'payment-methods'}[0]->{'payment-method'}['name'])) {
-            $this->paymentMethod = $simpleXml->{'payment-methods'}[0]->{'payment-method'}['name'];
+        $this->paymentMethod = $paymentMethod;
+
+        if (isset($responseData->{'completion-time-stamp'})) {
+            $this->timeStamp = $responseData->{'completion-time-stamp'};
         }
-        if (isset($simpleXml->{'completion-time-stamp'})) {
-            $this->timeStamp = $simpleXml->{'completion-time-stamp'};
+        if (isset($responseData->{'consumer-id'})) {
+            $this->customerId = $responseData->{'consumer-id'};
         }
-        if (isset($simpleXml->{'consumer-id'})) {
-            $this->customerId = $simpleXml->{'consumer-id'};
+        if (isset($responseData->{'ip-address'})) {
+            $this->ip = $responseData->{'ip-address'};
         }
-        if (isset($simpleXml->{'ip-address'})) {
-            $this->ip = $simpleXml->{'ip-address'};
-        }
-        if (isset($simpleXml->{'order-number'})) {
-            $this->orderNumber = $simpleXml->{'order-number'};
+        if (isset($responseData->{'order-number'})) {
+            $this->orderNumber = $responseData->{'order-number'};
         }
     }
 
