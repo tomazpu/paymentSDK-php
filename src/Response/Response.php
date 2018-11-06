@@ -129,16 +129,17 @@ abstract class Response
             $this->responseData = new XmlResponse($responsePayload);
             $this->simpleXml = $responsePayload;//@TODO refactor succesresponse to work :) then we can remove this hack
             $this->setBasket();
-            $this->setCard();
         } else {
             $this->responseData = new JsonResponse($responsePayload);
         }
+
         $this->statusCollection = $this->responseData->generateStatusCollection();//done xml
-        $this->setValueForRequestId();//done xml
-        $this->setRequestedAmount();//done xml
-        $this->setAccountHolder();//done xml
-        $this->setShipping();//done xml
-        $this->setCustomFields();//done xml
+        $this->setValueForRequestId();//done xml json
+        $this->setRequestedAmount();//done xml json
+        $this->setAccountHolder();//done xml json
+        $this->setShipping();//done xml json
+        $this->setCustomFields();//done xml json
+	    $this->setCard(); //done xml json
     }
 
     /**
@@ -391,7 +392,9 @@ abstract class Response
 
     public function setCard()
     {
-        $this->card = new Card($this->simpleXml);
+    	$cardData = $this->responseData->getCard();
+
+        $this->card = new Card($cardData);
     }
 
     /**

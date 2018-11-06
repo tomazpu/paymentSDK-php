@@ -473,10 +473,15 @@ abstract class Transaction extends Risk
                 $result['fail-redirect-url'] = $this->redirect->getFailureUrl();
             }
         }
-        $result[self::PARAM_TRANSACTION_TYPE] = $this->retrieveTransactionType();
-        $specificProperties = $this->mappedSpecificProperties();
 
-        return array_merge($result, $specificProperties);
+	    if (null !== $this->customFields) {
+		    $result['custom-fields'] = $this->customFields->mappedProperties();
+	    }
+
+	    $result[self::PARAM_TRANSACTION_TYPE] = $this->retrieveTransactionType();
+	    $specificProperties = $this->mappedSpecificProperties();
+
+	    return array_merge($result, $specificProperties);
     }
 
     /**

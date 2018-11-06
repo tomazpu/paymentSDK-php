@@ -55,14 +55,10 @@ class JsonResponseMapper extends ResponseMapper
      */
     public function map($jsonPayload, Transaction $transaction = null)
     {
-        ini_set('xdebug.var_display_max_depth', '10');
-        ini_set('xdebug.var_display_max_children', '256');
-        ini_set('xdebug.var_display_max_data', '1024');
         $payload = json_decode(parent::map($jsonPayload));
         switch ($this->checkResponse($payload)) {
             case "success":
                 $response = new SuccessResponse($payload);
-                var_dump($payload);die();
                 break;
             case "interaction":
                 $response = new InteractionResponse($payload, $payload->{'payment-redirect-url'});

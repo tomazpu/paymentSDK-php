@@ -111,16 +111,16 @@ class Card implements MappableEntity
 
     /**
      * Parse card from response xml
-     * @param SimpleXMLElement $simpleXml
+     * @param object $cardData
      * @since 3.2.0
      */
-    private function parseFromXml($simpleXml)
+    private function parseFromXml($cardData)
     {
-        if (isset($simpleXml->{'card-token'}->{'masked-account-number'})) {
-            $this->maskedPan = $simpleXml->{'card-token'}->{'masked-account-number'};
+        if (isset($cardData->{'masked-account-number'})) {
+            $this->maskedPan = $cardData->{'masked-account-number'};
         }
-        if (isset($simpleXml->{'card-token'}->{'token-id'})) {
-            $this->token = $simpleXml->{'card-token'}->{'token-id'};
+        if (isset($cardData->{'token-id'})) {
+            $this->token = $cardData->{'token-id'};
         }
     }
 

@@ -136,42 +136,59 @@ class JsonResponse
 
     public function getAccountHolder()
     {
-        $accountHolderFields = array (
-            'first-name' => 'setFirstName',
-            'last-name' => 'setLastName',
-            'email' => 'setEmail',
-            'phone' => 'setPhone',
-            'address' => 'setAddress',
-            'crmid' => 'setCrmId',
-            'date-of-birth' => 'setDateOfBirth',
-            'gender' => 'setGender',
-            'shipping' => 'setShippingMethod', // only in shipping
-            'social-security-number' => 'setSocialSecurityNumber' //is newer send back by WPP
-        );
-
-        $accountHolder = new AccountHolder();
-
-        foreach ($accountHolderFields as $property => $setter) {
-            if (isset($this->json->{'payment'}->{'account-holder'}->{$property})) {
-                $accountHolder->{$setter}($this->json->{'payment'}->{'account-holder'}->{$property});
-            }
-        }
+        $accountHolder = $this->getAccountHolderFromJson();
 
         return $accountHolder;
     }
 
     public function getShipping()
     {
-        $shipping = new AccountHolder();
-        //@TODO for all other things for shipping
+        $shipping = $this->getAccountHolderFromJson('shipping');
 
         return $shipping;
+    }
+
+    private function getAccountHolderFromJson($from = 'account-holder')
+    {
+	    $accountHolderFields = array (
+		    'first-name' => 'setFirstName',
+		    'last-name' => 'setLastName',
+		    'email' => 'setEmail',
+		    'phone' => 'setPhone',
+		    'address' => 'setAddress',
+		    'crmid' => 'setCrmId',
+		    'date-of-birth' => 'setDateOfBirth',
+		    'gender' => 'setGender',
+		    'shipping' => 'setShippingMethod',
+		    'social-security-number' => 'setSocialSecurityNumber' //is newer send back by WPP
+	    );
+
+	    if (isset($this->json->{'payment'}->{$from})) {
+		    $accountHolder = new AccountHolder();
+		    foreach ($accountHolderFields as $property => $setter) {
+			    if (isset($this->json->{'payment'}->{$from}->{$property})) {
+				    $accountHolder->{$setter}($this->json->{'payment'}->{'account-holder'}->{$property});
+			    }
+		    }
+		    return $accountHolder;
+	    }
+
+	    return null;
     }
 
     public function getCustomFields()
     {
         $customFields = new CustomFieldCollection();
-        //@TODO for all other things for customfields
+
+	    if (isset($this->json->{'payment'}->{'custom-fields'})) {
+		    foreach ($this->json->{'payment'}->{'custom-fields'}->{'custom-field'} as $field) {
+		    	if (isset($field->{'field-name'}) && isset($field->{'field-value'})) {
+		    		$name = substr((string) $field->{'field-name'}, strlen(CustomField::PREFIX));
+		    		$value = $field->{'field-value'};
+		    		$customFields->add(new CustomField($name, $value));
+			    }
+		    }
+	    }
 
         return $customFields;
     }
@@ -213,4 +230,11 @@ class JsonResponse
 
         return (array)$result;
     }
+
+	public function getCard()
+	{
+		if (isset($this->json->{'payment'}->{'card-token'})) {
+			return $this->json->{'payment'}->{'card-token'};
+		}
+	}
 }

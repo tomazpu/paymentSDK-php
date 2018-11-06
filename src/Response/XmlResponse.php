@@ -31,21 +31,14 @@
 
 namespace Wirecard\PaymentSdk\Response;
 
-use chillerlan\QRCode\QRCode;
-use chillerlan\QRCode\QROptions;
 use SimpleXMLElement;
 use Wirecard\PaymentSdk\Entity\AccountHolder;
 use Wirecard\PaymentSdk\Entity\Amount;
-use Wirecard\PaymentSdk\Entity\Basket;
-use Wirecard\PaymentSdk\Entity\Card;
 use Wirecard\PaymentSdk\Entity\CustomField;
 use Wirecard\PaymentSdk\Entity\CustomFieldCollection;
-use Wirecard\PaymentSdk\Entity\PaymentDetails;
 use Wirecard\PaymentSdk\Entity\Status;
 use Wirecard\PaymentSdk\Entity\StatusCollection;
-use Wirecard\PaymentSdk\Entity\TransactionDetails;
 use Wirecard\PaymentSdk\Exception\MalformedResponseException;
-use Wirecard\PaymentSdk\TransactionService;
 
 /**
  * Class Response
@@ -261,5 +254,12 @@ class XmlResponse
         }
 
         return (array)$result;
+    }
+
+    public function getCard()
+    {
+	    if (isset($this->simpleXml->{'card-token'})) {
+	    	return $this->simpleXml->{'card-token'};
+	    }
     }
 }
