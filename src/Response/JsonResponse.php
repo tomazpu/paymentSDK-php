@@ -48,7 +48,7 @@ use Wirecard\PaymentSdk\TransactionService;
  * Class Response
  * @package Wirecard\PaymentSdk\Response
  */
-class JsonResponse
+class JsonResponse implements ResponseInterface
 {
 	const FORMAT = 'json';
 
@@ -316,6 +316,8 @@ class JsonResponse
 	}
 
     /**
+     * Get response format
+     *
      * @return string
      * @since 3.5.0
      */
@@ -342,4 +344,14 @@ class JsonResponse
 
 		return $response;
 	}
+
+	public function getData()
+    {
+        // TODO: Implement getData() method.
+    }
+
+    public function getRawData()
+    {
+        // TODO: Implement getRawData() method.
+    }
 }

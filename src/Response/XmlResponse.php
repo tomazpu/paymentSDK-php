@@ -44,7 +44,7 @@ use Wirecard\PaymentSdk\Exception\MalformedResponseException;
  * Class Response
  * @package Wirecard\PaymentSdk\Response
  */
-class XmlResponse
+class XmlResponse implements ResponseInterface
 {
 	const FORMAT = 'xml';
 
