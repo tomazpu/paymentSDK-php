@@ -307,6 +307,7 @@ class XmlResponse implements ResponseInterface
 	    if (isset($this->simpleXml->{'order-items'}->{'order-item'})) {
 		    return $this->simpleXml->{'order-items'}->{'order-item'};
 	    }
+	    return null;
     }
 
     /**

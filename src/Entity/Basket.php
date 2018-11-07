@@ -162,6 +162,9 @@ class Basket implements \IteratorAggregate, MappableEntity
      */
     public function parseBasket($paymentMethod, $orderItems, $format = 'xml')
     {
+        if (is_null($orderItems)) {
+            return $this;
+        }
         $basketVersion = '';
         switch ($paymentMethod) {
             case PayPalTransaction::NAME:

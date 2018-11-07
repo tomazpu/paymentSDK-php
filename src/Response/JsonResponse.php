@@ -304,6 +304,7 @@ class JsonResponse implements ResponseInterface
 		if (isset($this->json->{'payment'}->{'order-items'}->{'order-item'}) && count($this->json->{'payment'}->{'order-items'}->{'order-item'}) > 0) {
 			return $this->json->{'payment'}->{'order-items'}->{'order-item'};
 		}
+		return null;
 	}
 
     /**
