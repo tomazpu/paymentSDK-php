@@ -67,6 +67,7 @@ class XmlResponse
      * get the raw response data of the called interface
      *
      * @return string
+     * @since 3.5.0
      */
     public function getRawData()
     {
@@ -77,6 +78,7 @@ class XmlResponse
      * get the response in a flat array
      *
      * @return array
+     * @since 3.5.0
      */
     public function getData()
     {
@@ -87,6 +89,7 @@ class XmlResponse
     /**
      * @param SimpleXMLElement $simpleXml
      * @return array
+     * @since 3.5.0
      */
     private static function xmlToArray($simpleXml)
     {
@@ -119,6 +122,7 @@ class XmlResponse
      * @param array $array
      * @param string $prefix
      * @return array
+     * @since 3.5.0
      */
     private static function arrayFlatten($array, $prefix = '')
     {
@@ -135,6 +139,7 @@ class XmlResponse
 
     /**
      * @return SimpleXMLElement[]
+     * @since 3.5.0
      */
     public function getStatuses()
     {
@@ -150,8 +155,10 @@ class XmlResponse
 
     /**
      * get the collection of status returned by Wirecard's Payment Processing Gateway
+     *
      * @return StatusCollection
      * @throws MalformedResponseException
+     * @since 3.5.0
      */
     public function generateStatusCollection()
     {
@@ -192,6 +199,7 @@ class XmlResponse
      * @param string $element
      * @return string
      * @throws MalformedResponseException
+     * @since 3.5.0
      */
     public function findElement($element)
     {
@@ -202,6 +210,10 @@ class XmlResponse
         throw new MalformedResponseException('Missing ' . $element . ' in response.');
     }
 
+    /**
+     * @return null|Amount
+     * @since 3.5.0
+     */
     public function getRequestedAmount()
     {
         if ($this->simpleXml->{'requested-amount'}->count() < 1) {
@@ -214,16 +226,28 @@ class XmlResponse
         );
     }
 
+    /**
+     * @return AccountHolder
+     * @since 3.5.0
+     */
     public function getAccountHolder()
     {
         return new AccountHolder($this->simpleXml->{'account-holder'});
     }
 
+    /**
+     * @return AccountHolder
+     * @since 3.5.0
+     */
     public function getShipping()
     {
         return new AccountHolder($this->simpleXml->{'shipping'});
     }
 
+    /**
+     * @return CustomFieldCollection
+     * @since 3.5.0
+     */
     public function getCustomFields()
     {
         $customFieldCollection = new CustomFieldCollection();
@@ -245,6 +269,7 @@ class XmlResponse
     /**
      * @return array
      * @throws MalformedResponseException
+     * @since 3.5.0
      */
     public function findProviderTransactionId()
     {
@@ -258,6 +283,12 @@ class XmlResponse
         return (array)$result;
     }
 
+    /**
+     * Get card token
+     *
+     * @return SimpleXMLElement
+     * @since 3.5.0
+     */
     public function getCard()
     {
 	    if (isset($this->simpleXml->{'card-token'})) {
@@ -265,6 +296,12 @@ class XmlResponse
 	    }
     }
 
+    /**
+     * Get basket items
+     *
+     * @return SimpleXMLElement
+     * @since 3.5.0
+     */
     public function getBasketData()
     {
 	    if (isset($this->simpleXml->{'order-items'}->{'order-item'})) {
@@ -272,17 +309,33 @@ class XmlResponse
 	    }
     }
 
+    /**
+     * Get payment method name
+     *
+     * @return string
+     * @since 3.5.0
+     */
     public function getPaymentMethod()
     {
     	$attributes = $this->simpleXml->{'payment-methods'}->{'payment-method'}->attributes();
     	return (string) $attributes->name;
     }
 
+    /**
+     * Get Response format
+     *
+     * @return string
+     * @since 3.5.0
+     */
 	public function getFormat()
 	{
 		return $this::FORMAT;
 	}
 
+    /**
+     * @return SimpleXMLElement
+     * @since 3.5.0
+     */
 	public function getDataForDetails()
 	{
 		return $this->simpleXml;

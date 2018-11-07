@@ -51,6 +51,7 @@ use Wirecard\PaymentSdk\TransactionService;
 class JsonResponse
 {
 	const FORMAT = 'json';
+
     /**
      * @var string
      */
@@ -66,6 +67,12 @@ class JsonResponse
         $this->json = $json;
     }
 
+    /**
+     * Get the collection of status returned by Wirecard's Payment Processing Gateway
+     *
+     * @return mixed|StatusCollection
+     * @since 3.5.0
+     */
     public function generateStatusCollection()
     {
         $collection = new StatusCollection();
@@ -85,6 +92,12 @@ class JsonResponse
         return $collection;
     }
 
+    /**
+     * @param $statuses
+     * @param $collection
+     * @return mixed
+     * @since 3.5.0
+     */
     private function processStatusCollectionFromErrors($statuses, $collection)
     {
         foreach ($statuses as $status) {
@@ -100,6 +113,12 @@ class JsonResponse
         return $collection;
     }
 
+    /**
+     * @param $statuses
+     * @param $collection
+     * @return mixed
+     * @since 3.5.0
+     */
     private function processStatusCollectionFromStatuses($statuses, $collection)
     {
         if (count($statuses->{'status'}) > 0) {
@@ -127,6 +146,10 @@ class JsonResponse
         return $collection;
     }
 
+    /**
+     * @return Amount
+     * @since 3.5.0
+     */
     public function getRequestedAmount()
     {
         return new Amount(
@@ -135,6 +158,10 @@ class JsonResponse
         );
     }
 
+    /**
+     * @return null|AccountHolder
+     * @since 3.5.0
+     */
     public function getAccountHolder()
     {
         $accountHolder = $this->getAccountHolderFromJson();
@@ -142,6 +169,10 @@ class JsonResponse
         return $accountHolder;
     }
 
+    /**
+     * @return null|AccountHolder
+     * @since 3.5.0
+     */
     public function getShipping()
     {
         $shipping = $this->getAccountHolderFromJson('shipping');
@@ -149,6 +180,11 @@ class JsonResponse
         return $shipping;
     }
 
+    /**
+     * @param string $from
+     * @return null|AccountHolder
+     * @since 3.5.0
+     */
     private function getAccountHolderFromJson($from = 'account-holder')
     {
 	    $accountHolderFields = array (
@@ -177,6 +213,10 @@ class JsonResponse
 	    return null;
     }
 
+    /**
+     * @return CustomFieldCollection
+     * @since 3.5.0
+     */
     public function getCustomFields()
     {
         $customFields = new CustomFieldCollection();
@@ -194,6 +234,11 @@ class JsonResponse
         return $customFields;
     }
 
+    /**
+     * @param $element
+     * @return string
+     * @since 3.5.0
+     */
     public function findElement($element)
     {
         if (isset($this->json->{'payment'}->{$element})) {
@@ -207,6 +252,12 @@ class JsonResponse
         throw new MalformedResponseException('Missing ' . $element . ' in response.');
     }
 
+    /**
+     * @param $entity
+     * @param $property
+     * @return null
+     * @since 3.5.0
+     */
     public function getValueFromJson($entity, $property)
     {
         if (isset($this->json->{'payment'}->{$entity}->{$property})) {
@@ -219,6 +270,7 @@ class JsonResponse
     /**
      * @return array
      * @throws MalformedResponseException
+     * @since 3.5.0
      */
     public function findProviderTransactionId()
     {
@@ -232,6 +284,10 @@ class JsonResponse
         return (array)$result;
     }
 
+    /**
+     * @return mixed
+     * @since 3.5.0
+     */
 	public function getCard()
 	{
 		if (isset($this->json->{'payment'}->{'card-token'})) {
@@ -239,6 +295,10 @@ class JsonResponse
 		}
 	}
 
+    /**
+     * @return mixed
+     * @since 3.5.0
+     */
 	public function getBasketData()
 	{
 		if (isset($this->json->{'payment'}->{'order-items'}->{'order-item'}) && count($this->json->{'payment'}->{'order-items'}->{'order-item'}) > 0) {
@@ -246,16 +306,28 @@ class JsonResponse
 		}
 	}
 
+    /**
+     * @return mixed
+     * @since 3.5.0
+     */
 	public function getPaymentMethod()
 	{
 		return $this->json->{'payment'}->{'payment-methods'}->{'payment-method'}[0]->{'name'};
 	}
 
+    /**
+     * @return string
+     * @since 3.5.0
+     */
 	public function getFormat()
 	{
 		return $this::FORMAT;
 	}
 
+    /**
+     * @return mixed
+     * @since 3.5.0
+     */
 	public function getDataForDetails()
 	{
 		$response = $this->json->{'payment'};
