@@ -313,7 +313,10 @@ class JsonResponse implements ResponseInterface
      */
 	public function getPaymentMethod()
 	{
-		return $this->json->{'payment'}->{'payment-methods'}->{'payment-method'}[0]->{'name'};
+	    if (isset($this->json->{'payment'})) {
+            return $this->json->{'payment'}->{'payment-methods'}->{'payment-method'}[0]->{'name'};
+        }
+        return 'wpp';
 	}
 
     /**

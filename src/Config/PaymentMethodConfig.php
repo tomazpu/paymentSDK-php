@@ -35,6 +35,7 @@ use Wirecard\PaymentSdk\Entity\MappableEntity;
 use Wirecard\PaymentSdk\Exception\MandatoryFieldMissingException;
 use Wirecard\PaymentSdk\Transaction\CreditCardTransaction;
 use Wirecard\PaymentSdk\Transaction\MaestroTransaction;
+use Wirecard\PaymentSdk\Transaction\WPPTransaction;
 
 class PaymentMethodConfig implements MappableEntity
 {
@@ -54,6 +55,11 @@ class PaymentMethodConfig implements MappableEntity
     protected $secret;
 
     /**
+     * @var string
+     */
+    protected $category;
+
+    /**
      * PaymentMethodConfig constructor.
      * @param string $paymentMethodName
      * @param string|null $merchantAccountId
@@ -61,7 +67,7 @@ class PaymentMethodConfig implements MappableEntity
      */
     public function __construct($paymentMethodName, $merchantAccountId = null, $secret = null)
     {
-        if (!in_array($paymentMethodName, [CreditCardTransaction::NAME, MaestroTransaction::NAME])
+        if (!in_array($paymentMethodName, [CreditCardTransaction::NAME, MaestroTransaction::NAME, WPPTransaction::NAME])
             && (is_null($merchantAccountId) || is_null($secret))) {
             throw new MandatoryFieldMissingException('MAID and secret are mandatory!');
         }
@@ -103,14 +109,27 @@ class PaymentMethodConfig implements MappableEntity
     }
 
     /**
+     * @param $category
+     * @since 3.5.0
+     */
+    public function setResolverCategory($category) {
+        $this->category = $category;
+    }
+
+    /**
      * @return array
      */
     public function mappedProperties()
     {
-        return [
-            'merchant-account-id' => [
+        $data = [];
+        if ($this->category) {
+            $data['merchant-account-resolver-category'] = $this->category;
+        }
+        if (!is_null($this->merchantAccountId)) {
+            $data['merchant-account-id'] = [
                 'value' => $this->merchantAccountId
-            ]
-        ];
+            ];
+        }
+        return $data;
     }
 }

@@ -31,8 +31,8 @@ $redirectUrls = new Redirect(getUrl('return.php?status=success'), getUrl('return
 
 // The account holder last name is required for credit.
 $accountHolder = new AccountHolder();
-$accountHolder->setLastName('Doe');
 $accountHolder->setFirstName('John');
+$accountHolder->setLastName('Doe');
 
 // ## Transaction
 
@@ -47,7 +47,7 @@ $transaction->setAccountHolder($accountHolder);
 
 // The service is used to execute the payment operation itself. A response object is returned.
 $transactionService = new TransactionService($config);
-$response = $transactionService->reserve($transaction);
+$response = $transactionService->process($transaction, 'autosale');
 
 // ## Response handling
 

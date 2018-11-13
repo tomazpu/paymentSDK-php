@@ -44,6 +44,7 @@ class WPPTransaction extends Transaction implements Reservable
 {
     const ENDPOINT_PAYMENTS = '/api/payment/register';
     const NAME = 'wpp';
+    const TYPE_AUTOSALE = 'auto-sale';
 
     /**
      * @var WPPConfig
@@ -74,7 +75,8 @@ class WPPTransaction extends Transaction implements Reservable
      */
     protected function mappedSpecificProperties()
     {
-        return [];
+        $data = [];
+        return $data;
     }
 
     /**
@@ -92,6 +94,14 @@ class WPPTransaction extends Transaction implements Reservable
     protected function retrieveTransactionTypeForReserve()
     {
         return self::TYPE_AUTHORIZATION;
+    }
+
+    /**
+     * @return string
+     */
+    protected function retrieveTransactionTypeForAutoSale()
+    {
+        return self::TYPE_AUTOSALE;
     }
 
     /**

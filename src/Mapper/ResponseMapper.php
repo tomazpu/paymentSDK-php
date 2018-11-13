@@ -74,6 +74,8 @@ abstract class ResponseMapper
 
     /**
      * @param string $response
+     * @param string|null $signature
+     * @param string|null $secret
      * @throws \Wirecard\PaymentSdk\Exception\MalformedResponseException
      * @throws \InvalidArgumentException
      * @return Response
@@ -179,5 +181,18 @@ abstract class ResponseMapper
                 return new FailureResponse($this->simpleXml);
             }
         }
+    }
+
+    /**
+     * Default validate signature
+     *
+     * @param string $response
+     * @param string|null $signature
+     * @param string|null $secret
+     * @return bool
+     * @since 3.5.0
+     */
+    protected function validateSignature($response, $signature = null, $secret = null) {
+        return true;
     }
 }

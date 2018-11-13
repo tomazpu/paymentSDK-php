@@ -466,17 +466,17 @@ abstract class Transaction extends Risk
 
         if ($this->redirect instanceof Redirect) {
             $result['success-redirect-url'] = $this->redirect->getSuccessUrl();
-            if ($this->redirect->getCancelUrl()) {
-                $result['cancel-redirect-url'] = $this->redirect->getCancelUrl();
-            }
             if ($this->redirect->getFailureUrl()) {
                 $result['fail-redirect-url'] = $this->redirect->getFailureUrl();
             }
+            if ($this->redirect->getCancelUrl()) {
+                $result['cancel-redirect-url'] = $this->redirect->getCancelUrl();
+            }
         }
 
-	    if (null !== $this->customFields) {
-		    $result['custom-fields'] = $this->customFields->mappedProperties();
-	    }
+        if (null !== $this->customFields) {
+            $result['custom-fields'] = $this->customFields->mappedProperties();
+        }
 
 	    $result[self::PARAM_TRANSACTION_TYPE] = $this->retrieveTransactionType();
 	    $specificProperties = $this->mappedSpecificProperties();
@@ -522,6 +522,9 @@ abstract class Transaction extends Risk
                 break;
             case Operation::CREDIT:
                 $transactionType = $this->retrieveTransactionTypeForCredit();
+                break;
+            case Operation::AUTOSALE:
+                $transactionType = $this->retrieveTransactionTypeForAutoSale();
                 break;
             default:
                 throw new UnsupportedOperationException();
@@ -571,6 +574,16 @@ abstract class Transaction extends Risk
      * @return string
      */
     protected function retrieveTransactionTypeForCredit()
+    {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * @throws UnsupportedOperationException
+     * @return string
+     * @since 3.5.0
+     */
+    protected function retrieveTransactionTypeForAutoSale()
     {
         throw new UnsupportedOperationException();
     }

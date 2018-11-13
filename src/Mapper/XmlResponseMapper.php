@@ -106,7 +106,7 @@ class XmlResponseMapper extends ResponseMapper
      * @param string $xmlResponse
      * @return boolean
      */
-    protected function validateSignature($xmlResponse)
+    protected function validateSignature($xmlResponse, $signature = null, $secret = null)
     {
         $result = true;
 
