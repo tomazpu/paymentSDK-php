@@ -54,6 +54,7 @@ class WPPTransaction extends Transaction implements Reservable
     /**
      * @param WPPConfig $config
      * @return WPPTransaction
+     * @since 3.5.0
      */
     public function setConfig($config)
     {
@@ -63,6 +64,7 @@ class WPPTransaction extends Transaction implements Reservable
 
     /**
      * @return string
+     * @since 3.5.0
      */
     public function getEndpoint()
     {
@@ -72,6 +74,7 @@ class WPPTransaction extends Transaction implements Reservable
     /**
      * @throws MandatoryFieldMissingException|UnsupportedOperationException
      * @return array
+     * @since 3.5.0
      */
     protected function mappedSpecificProperties()
     {
@@ -82,6 +85,7 @@ class WPPTransaction extends Transaction implements Reservable
     /**
      * @throws UnsupportedOperationException|MandatoryFieldMissingException
      * @return string
+     * @since 3.5.0
      */
     protected function retrieveTransactionType()
     {
@@ -90,6 +94,7 @@ class WPPTransaction extends Transaction implements Reservable
 
     /**
      * @return string
+     * @since 3.5.0
      */
     protected function retrieveTransactionTypeForReserve()
     {
@@ -98,6 +103,7 @@ class WPPTransaction extends Transaction implements Reservable
 
     /**
      * @return string
+     * @since 3.5.0
      */
     protected function retrieveTransactionTypeForAutoSale()
     {
@@ -106,9 +112,10 @@ class WPPTransaction extends Transaction implements Reservable
 
     /**
      * @return string
+     * @since 3.5.0
      */
     public function retrieveOperationType()
     {
-        return self::TYPE_AUTHORIZATION;
+        return self::TYPE_AUTOSALE;
     }
 }

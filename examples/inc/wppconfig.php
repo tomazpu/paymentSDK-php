@@ -28,3 +28,11 @@ $config = new Config\Config($baseUrl, $httpUser, $httpPass, 'EUR');
 $wppConfig = new PaymentMethodConfig(WPPTransaction::NAME);
 $wppConfig->setResolverCategory('DEMOSHOP');
 $config->add($wppConfig);
+
+// ### SEPA Direct Debit
+
+$sepaMAID = '927c719f-6bc4-437e-a6bb-261e8ad1f384';
+$sepaKey = 'bce59e98-92da-4b7b-84e1-99de729ca327';
+$sepaConfig = new Config\SepaConfig(\Wirecard\PaymentSdk\Transaction\SepaDirectDebitTransaction::NAME, $sepaMAID, $sepaKey);
+$sepaConfig->setCreditorId('DE98ZZZ09999999999');
+$config->add($sepaConfig);
